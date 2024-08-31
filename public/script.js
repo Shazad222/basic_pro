@@ -1,6 +1,8 @@
 document.addEventListener("DOMContentLoaded", function () {
     const uploadForm = document.getElementById("uploadForm");
     const imageList = document.getElementById("imageList");
+    const editImageForm = document.getElementById("editImageForm");
+    const editImageIdInput = document.getElementById("editImageId");
 
     uploadForm.addEventListener("submit", function (event) {
         event.preventDefault();
@@ -56,7 +58,32 @@ document.addEventListener("DOMContentLoaded", function () {
                     }
                 })
                 .catch(err => console.error('Error during file deletion:', err));
+        } else if (event.target.classList.contains('edit-btn')) {
+            const id = event.target.getAttribute('data-id');
+            editImageIdInput.value = id;
+            $('#editImageModal').modal('show');
         }
+    });
+
+    editImageForm.addEventListener('submit', function (event) {
+        event.preventDefault();
+        const id = editImageIdInput.value;
+        const formData = new FormData(editImageForm);
+
+        fetch(`/edit/${id}`, {
+            method: 'POST',
+            body: formData
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    $('#editImageModal').modal('hide');
+                    displayImages();
+                } else {
+                    alert('Failed to edit image');
+                }
+            })
+            .catch(err => console.error('Error during file edit:', err));
     });
 
     displayImages();
